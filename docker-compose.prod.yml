@@ -1,0 +1,16 @@
+﻿version: "3.8"
+services:
+  app:
+    build: .
+    container_name: TLExemploReact-prod
+    ports:
+      - "5012:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - NODE_ENV=production
+    networks:
+      - tlserver-prod
+    restart: unless-stopped
+networks:
+  tlserver-prod:
+    driver: bridge
