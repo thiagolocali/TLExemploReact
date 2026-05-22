@@ -1,12 +1,13 @@
-﻿FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-COPY . .
-RUN dotnet restore
-RUN dotnet build -c Release -o /app/build
-
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+﻿FROM node:22-slim AS build
+RUN corepack enable
 WORKDIR /app
-COPY --from=build /app/build .
+COPY package*.json ./
+RUN pnpm install
+COPY . .
+RUN pnpm run build
+
+FROM nginx:alpine
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
-ENV ASPNETCORE_URLS=http://+:80
-ENTRYPOINT ["dotnet", "TLExemploReact.dll"]
+CMD ["nginx", "-g", "daemon off;"]
